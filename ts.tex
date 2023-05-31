@@ -1,0 +1,275 @@
+\documentclass[journal]{IEEEtran}
+
+% Packages
+\usepackage{cite}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{hyperref}
+\usepackage{svg}
+
+% Title and author information
+\title{Time Series for Web Traffic Forecasting }
+\author{Benjamin Santana Velazquez}
+\date{June 2023}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+% Your abstract goes here
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum
+    dignissim felis in nisi lobortis, nec tincidunt nulla interdum. Nulla
+    facilisi. Proin et augue risus. Nullam non ipsum in nisi accumsan bibendum.
+    Curabitur sed elit at est aliquet convallis. Nullam dictum ullamcorper
+    mauris id hendrerit. Mauris a dui tincidunt, feugiat magna vel, interdum
+    sapien.
+\end{abstract}
+
+\begin{IEEEkeywords}
+% Your keywords go here
+    Forecasting
+    Time Series
+\end{IEEEkeywords}
+
+\section{Introduction}
+Every event serves as a salve to the progression of time, offering a compelling
+rationale behind the significance of \emph{time series analysis} within the
+realm of data science. In today's data-driven world companies hoard large
+amounts of data over time, which contain imporant information about their
+business patterns. Consequently, time series analysis has permeated various
+fields, from the traditional ones like finance and economy --- where someone
+can forecast sales or the EPS of a public company --- to lesser explored
+territories like marketing, where time series analysis allows to track business
+metrics, such as user engagement and make forecasts based on that. In this
+piece of work we will delve into the realm of web traffic.
+
+It is common for web applications to keep a register of their traffic at all
+times. Meaning, if you are the owner of a website it is likely that you have
+access to the data sent and received by your visitors. What is more, you
+probably have access to the Clickstream Data of your users, which is the record
+of an individual’s clicks through their journey on the Internet (in this case,
+your website).
+
+Taking advantage of this information, and the power of forecasting with
+statistical models in time series, we can forecast the traffic of a website.
+
+Why would we want to do this? \emph{Resource Allocation} and \emph{Performance
+Optimization}. By forecasting website traffic, we can estimate the expected
+number of visitors and allocate appropriate resources to handle the load. This
+can either save costs in the infrastrucutre of the website like server
+capacity, bandwith --- when a low number of visitors is present --- or it can
+save the website's users from seeing an overload error when the server's
+capacity is at peak.
+
+Recently, a popular website by the name of \href{https://chess.com}{chess.com}
+had this issue.  "Chess Is Booming! And Our Servers Are Struggling."
+\cite{chesscom} was the title of an article posted after days of having their
+servers at max capacity, not allowing users to play games and losing revenue in
+the process.
+
+This begs the question: Can we accurately forecast the traffic of the website
+chess.com to enable proactive resource allocation and ensure sufficient
+resources are allocated in advance? I will do my best to try and answer this in
+this short paper
+
+We will use one of the most popular traditional statistical methods used in
+time series forecasting, $SARIMAX(p,d,q)(P,D,Q)_m$. We will find out if this
+model is powerful enough to create meaningful and accurate forecasts or if
+opting for naive methods to get better results.  we should opt into the world
+of neural networks \footnote{We could also opt into the realm of neural network
+for time series, but this is not covered in the paper, if you are interested
+on that please refer to \cite{nn}}
+
+Unfortunately, the taffic of a website is not public information. Meaning we
+cannot get the actual time series from chess.com itself. We need to rely on
+other sources to get the actual information. After reviewing the possible
+options we decied to go with  \href{http://semrush.com}{semrush}, a "all-in-one
+tool suite for improving online visibility and discovering marketing insights."
+\cite{semrush}. One of semrush tools provides web traffic for different
+websites. Of course we need to take into account that we are taking the data
+(the time series itself) from a third party, so there is a some level of
+uncertainty associated with its accuracy. Semrush provided us with the historic
+information month by month of traffic in chess.com from January 2012 to March
+2023. How it looks will be discussed later in the paper. What I wanted to point
+here is that we will try to forecast 3 months into the future given these data
+points
+
+In summary, our objective is to assess the effectiveness of the
+$SARIMAX(p,d,q)(P,D,Q)_m$ model in forecasting three months of web traffic on
+chess.com. We will be conducting an analysis by comparing its performance
+against naive forecasting methods. Such forecasts play a crucial role in
+facilitating both resource allocation and performance optimization strategies
+for the website. The conclution an results are shown in Section
+\ref{sec:analysis} and Section \ref{sec:conclusion}
+
+
+\section{Background Study}
+% Discuss related work here
+In this section we will define what a time series is and how it is composed.
+We are also going to discuss the $MA(q)$ model and the $AR(p)$ model, which
+serve as a base for $SARIMAX(p,d,q)(P,D,Q)_m$. Understanding these two parts
+of the model --- I believe --- is the keystone to understanding the model as a
+whole. We are also going to review the steps we are going to follow to tackle
+the problem at hand. So let us start with a simple question...
+
+What is a time series? We can define a time series as a set of points ordered
+in time, usually equally spaced in time. \cite{timeseries} We can decompose
+any time series into 3 components:
+
+\begin{itemize}
+    \item \emph{trend}, the slow-moving change in the time series.
+
+    \item \emph{seasonal component}, a cycle that occurs over a fixed period
+        of time.
+
+    \item \emph{residuals}, what can not be explained by the trend of seasonal
+        components, this is usually whtie noise. Any model wont be able to
+        forecast any of this part, since it is completely random
+\end{itemize}
+
+Now that we have defined these concepts of a time series, let us see how they
+llok in action. To demostrate how this looks in a time series we will use
+classical time series presented in \emph{Box, G. E. P., Time Series Analysis,
+Forecasting and Control.} \cite{airline}. The classic Box \& Jenkins airline
+data presents monthly totals of international airline passengers, 1949 to
+1960. Table~\ref{tab:passengerdata}, showcase the first 5 entries of the time
+series.
+
+\begin{table}[htbp]
+  \centering
+  \caption{First five rows of The classic Box \& Jenkins airline data}
+  \label{tab:passengerdata}
+  \begin{tabular}{|c|c|}
+    \hline
+    Month    & Passengers \\
+    \hline
+    1949-01  & 112        \\
+    1949-02  & 118        \\
+    1949-03  & 132        \\
+    1949-04  & 129        \\
+    1949-05  & 121        \\
+    \hline
+  \end{tabular}
+\end{table}
+
+If we plot the series, with the time in the $x$ axis and the passengers in
+the $y$ axis, we get something like Figure~\ref{fig:airpassenger}. This is
+what we call observed data.
+
+\begin{figure}[htbp]
+  \centering
+  \includesvg[width=1\columnwidth]{images/airpassenger-ts.svg}
+  \caption{The classic Box \& Jenkins airline data, it presents monthly
+    totals of international airline passengers, 1949 to 1960.}
+  \label{fig:airpassenger}
+\end{figure}
+
+Let us decompose it into the three components, to see how it would each would
+look in a graph. Figure~\ref{fig:decompose} showcases how this looks.
+
+\begin{figure}[htbp]
+  \centering
+  \includesvg[width=1\columnwidth]{images/decompose.svg}
+  \caption{Decomposition of The classic Box \& Jenkins airline data, it
+    presents monthly totals of international airline passengers, 1949 to
+    1960.}
+  \label{fig:decompose}
+\end{figure}
+
+We can see that now we have 4 plots displaying. The first one is the observed
+data, just like we saw in Figure~\ref{fig:airpassenger}. Then we can see one
+plot for each of the concepts explained above. We see the trend  as a
+slow-change moving upwards. We can see the seasonal component repeating each
+year, and finally the white noise or residuals of the time series.
+
+Hopefully after seeing this example this concepts have clearer to the reader.
+
+By now you might be wondering what are the differences between time series
+forecasting and a other regression tasks. It basically comes down to two
+things: \emph{time series has an order}, --- a time series is indexed by
+time, order must be kept, in regression tasks when  you want to predict
+revenue based on ad spend, it does not matter when certain amount was spent
+on ads. --- and \emph{time series do not have features}, it is common to only
+have two columns, time and the data itself, it usually does not have
+categories.
+
+Before jumping into $MA(q)$ and $AR(p)$ I want to explain some concepts, the
+first one is \emph{baseline models}. A baseline model is a trivial solution
+to our problem, it uses heuristics more than deep statsticts knowledge or
+anything else. It might be clearer if we use an example. Say we have a time
+series on the sales of XYZ, after getting the data points we calculate the
+mean and say "I forecast next month our sales will be the mean of all the time
+series". We got this forecast using a simple statistics concept like it is the
+mean. It is likely that  we can get a better forecast than this using more
+complex stastics. Why then should we bother making this naive models? They
+allow us to compare our complex model with something. A common example of a
+baseline model is just simply using the last value known. For example, if we
+have five years worth of data points, collected each month, and we want to
+forecast next three months, we can simply copy and paste the values from last
+three months and be good to go. In some time series, our statistical model
+maybe performs worse than this naive methods, then we would be wasting
+resources every forecast running our complex statistical models. Because we
+could just copy and past the last values, or use the mean, or some other
+baseline model. In Section~\ref {sec:analysis} we will compare our
+$SARIMAX(p,d,q)(P,D,Q)_m$ model with a baseline model and conclude if it is
+worth it to use it against some simpler methods.
+
+One last thing on the baseline methods. How do we compare the models against
+each other? We will calculate an error metric in order to evaluate the
+performance of our forecasts. We will use $MAPE$ (mean absolute percentage
+error), which will measure prediction accuracy, independent of the scale of
+our data
+
+The next concept is \emph{stationarity}, a stationary time series is one whose
+statistical properties do not change over time It has constant mean, variance,
+and autocorrelation, and these properties are independent of time
+\cite{timeseries}. Many models assume stationarity but we rarely see
+stationarity in time series. Lucky for us we can transform the time series to
+become stationary, there are many ways to transform it but the simplest (and
+the one we are going to use) is \emph{differencing}. This consists on
+calcluate the changes from one step to another.  This transformation helps
+stabilize the mean. Which reduces the trend and seasonality effects. This
+means that we also need to make sure we do an inverse transfrom of the data
+after finishing the model.
+
+We can test for stationarity with the \emph{Augmented Dickey-Fuller} (ADF) test
+\cite{adf}, The key idea in the ADF test is to estimate an autoregressive model
+of the time series and examine the significance of the coefficient on the
+lagged first difference term. If the coefficient is significantly different
+from zero, it suggests evidence against the presence of a unit root and
+supports stationarity. \footnote{if you want more information on how this work
+I highly recommend reading the paper where it was proposed \cite{adf}}
+% add what the p value means
+
+% explain MA and AR, and ARIMA
+
+\section{Eperimental framework}
+% Describe your methodology here
+
+\section{Analysis of Results}\label{sec:analysis}
+% Present your experimental results here
+
+\section{Conclusion}\label{sec:conclusion}
+% Summarize your findings and conclude the paper
+
+\section*{Acknowledgment}
+% Acknowledgments (if any) go here
+I would like to express my sincere appreciation and gratitude to Marco
+Peixeiro for his exceptional book, "Time Series Forecasting." This book has
+been an invaluable resource throughout my research and study in the field of
+time series analysis.
+
+Marco Peixeiro's expertise and comprehensive coverage of time series
+forecasting techniques have provided me with deep insights and practical
+knowledge. The clear explanations and numerous examples presented in the book
+have greatly enhanced my understanding of this complex subject.
+
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}
