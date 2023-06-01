@@ -36,8 +36,8 @@
 \end{IEEEkeywords}
 
 \section{Introduction}
-Every event serves as a salve to the progression of time, offering a compelling
-rationale behind the significance of \emph{time series analysis} within the
+Very few events are unaffected by time, this offers a compelling rationale
+behind the significance of \emph{time series analysis} within the
 realm of data science. In today's data-driven world companies hoard large
 amounts of data over time, which contain imporant information about their
 business patterns. Consequently, time series analysis has permeated various
@@ -231,7 +231,7 @@ and autocorrelation, and these properties are independent of time
 stationarity in time series. Lucky for us we can transform the time series to
 become stationary, there are many ways to transform it but the simplest (and
 the one we are going to use) is \emph{differencing}. This consists on
-calcluate the changes from one step to another.  This transformation helps
+calcluate the changes from one time step to another ($y'_t = y_t - y_{t-1}$). This transformation helps
 stabilize the mean. Which reduces the trend and seasonality effects. This
 means that we also need to make sure we do an inverse transfrom of the data
 after finishing the model.
@@ -243,9 +243,255 @@ lagged first difference term. If the coefficient is significantly different
 from zero, it suggests evidence against the presence of a unit root and
 supports stationarity. \footnote{if you want more information on how this work
 I highly recommend reading the paper where it was proposed \cite{adf}}
-% add what the p value means
 
-% explain MA and AR, and ARIMA
+Basically the null hypothesis states that a unit root is present, meaning that
+our time series is not stationary. We can reject the null hypothesis if after
+doing the test, we get a $p$ value less than $0.05$.
+
+I think we have a good enough grasp on time series to go into the moving
+average process ($MA(q)$) and the autoregressive process ($AR(p)$)
+
+\subsection{Moving Average Process}\label{sub:ma}
+
+In a moving average ($MA$) process, the current value depens linearly on the
+mean of the series, the current error term, and past error
+terms.\cite{timeseries}. It is usually denoted as $MA(q)$ where $q$ is the
+order, meaning the number of past error terms that affect the present value).
+
+The moving average of order $q$ is calculated by equation~\ref{eq:ma}.
+\begin{equation}
+    y_t = \mu + \epsilon_t + \theta_1\epsilon_{t-1} + \theta_2\epsilon_{t-2} +
+            ... +  \theta_q\epsilon_{t-q}
+    \label{eq:ma}
+\end{equation}
+
+Where, $\mu$ is the mean, $\epsilon_t$ is the error term, $\epsilon_{t-k}$ is
+the past error term and $\theta$ is the magnitude of impact of the past errors.
+
+Needless to say, the large $q$ is, the more past error terms affect the
+present value. This means that we need to choose this hyperparemeter carefully
+in order to train the data correctly. In simple time series we can use simply
+use the AutoCorrelation Function (ACF) plot in  order to get $q$. An example
+of such plot is shown in Figure~\ref{fig:acf}.
+
+\begin{figure}[htbp]
+  \centering
+  \includesvg[width=1\columnwidth]{images/acf.svg}
+    \caption{Example ACF plot, where we see a relevant correlation up to lag 2}
+  \label{fig:acf}
+\end{figure}
+
+In this plot we can see a relevant correlation up to lag 2, meaning we can use
+$MA(2)$ to model this stationary time series process.
+
+\subsection{Autoregressive Process}\label{sub:ar}
+
+An autoregressive process ($AR(p)$)establishes that the output variable
+depends linearly on its own previous states. An autoregressive process is a
+regression of a variable against itself. In a time series, this means that the
+present value is linearly dependent on its past values. \cite{timeseries}
+
+It is defined by $AR(p)$ where $p$ is the order it defines the number of past
+values that affect the present value. Equation~\ref{eq:ar} show an
+autoregressive process up to lag $p$.
+
+\begin{equation}
+    y_t = C + \phi_1 y_{t-1} + \phi_2 y_{t-2}
+            ... +  \phi_p y_{t-p} + \epsilon_t
+    \label{eq:ar}
+\end{equation}
+
+Where $\phi$ is the autoregressive coefficients that measure the strength of
+the relationship between the current value and past values, $\epsilon_t$ is
+the error term and $\epsilon_{t-k}$ the past error term.
+
+Like in subsection~\ref{sub:ma}, we also have an important hyperparemeter
+here: $p$. Unfortunately we can not get it from the ACF plot, because if we
+did an the plot on autoregressive stationary process it would exhibit a
+pattern of exponential decay\cite{timeseries} like see in
+Figure~\ref{fig:acf-ar}.
+
+\begin{figure}[htbp]
+  \centering
+  \includesvg[width=1\columnwidth]{images/acf-ar.svg}
+    \caption{Example ACF plot on an autoregressive process}
+  \label{fig:acf-ar}
+\end{figure}
+
+We then must turn our attention to the Partial AutoCorrelation Function (PACF)
+plot. to get the order of the autoregression. This measures the correlation
+between lagged values in a time series when we remove the influence of
+correlated lagged values in between. Figure~\ref{fig:pacf} showcase how this
+would look.
+
+\begin{figure}[htbp]
+  \centering
+  \includesvg[width=1\columnwidth]{images/pacf-ar.svg}
+    \caption{Example PACF plot, We can see that we have no significant
+        coeficients after lag 3, meaning $AR(p)$ where $p=3$, we have an
+        autoregressive process of order 3}
+    \label{fig:pacf}
+\end{figure}
+
+We can see in this example plot that we have no significant coeficients after
+lag 3, therefore we can say that this process is $AR(3)$, meaning we have an
+autoregressive process of order 3.
+
+\subsection{Complex Time Series}
+
+We have seen $MA(q)$ and $AR(p)$, but the curious reader (or one with a
+background on time series analysis), will see that something is missing.  What
+happens when the ACF plot shows a slowly decaying pattern or a sinusoidal
+pattern, and, when plotting PACF you see too, a slowly decaying pattern or a
+sinusoidal pattern. Meaning we cannot infer an order from the ACF plot or from
+the PACF plot. Then, we may be in the precnese of a complex process, where we
+will need to combine $AR(p)$ and $MA(q)$ to model it, this is where the
+$ARMA(p, q)$ model comes into play.
+
+The $ARMA(p, q)$  is simply a combination of the models we saw in
+subsection~\ref{sub:ma} and subsection~\ref{sub:ar}. If we see how we can
+model it, you will see that we basically have the two equations plugged
+together. See equation~\ref{eq:arma} where:
+
+\begin{equation}
+\begin{aligned}
+    y_t &= C + \phi_1 y_{t-1} + \phi_2 y_{t-2} +
+            ... +  \phi_p y_{t-p} + \epsilon_t \\
+        &+ \theta_1\epsilon_{t-1} + \theta_2\epsilon_{t-2} +
+            ... +  \theta_q\epsilon_{t-q}
+    \label{eq:arma}
+\end{aligned}
+\end{equation}
+
+\begin{itemize}
+    \item $p$ determines the number of past \emph{values} that affect the present
+        value.
+    \item $q$ determines the number of past \emph{errors} that affect the
+        present value.
+\end{itemize}
+
+It is worth mentioning that $ARMA(0,q)$ process is equivalent to an $MA(q)$
+process, since the order $p = 0$ cancels the $AR(p)$ portion. An $ARMA(p,0)$
+process is equivalent to an $AR(p)$ process, since the order $q = 0$ cancels
+the $MA(q)$ portion.
+
+This still does not solve the issue I stated above, even if we combien both
+models, we wont be able to get the order ($p$ and $q$) using the ACF and PACF
+plot. Luckily for us we can use the \emph{Akaike Information Criterion}
+($AIC$).
+
+\subsection{Akaike Information Criterion}
+
+The $AIC$ estimates the quality of a model relative to other models.  Given
+that there will be some information lost when a model is fitted to the data,
+the $AIC$ quantifies the information lost. The less information lost, the
+lower the $AIC$ value and the better the model.
+
+Equation~\ref{eq:aic} shows how to calculate $AIC$.
+
+\begin{equation}
+    AIC = 2k - ln(\hat{L})
+    \label{eq:aic}
+\end{equation}
+
+Where, $k$ is the number of estimated parameters, $\hat{L}$ maximum value of
+the likehood function model. 
+
+Using $AIC$ to select our model, allows us to keep a balance between the
+complexity of the model and its goodness of fitting the data. This is becase
+$k$ is directly affected by the order of $p$ and $q$ in $ARMA(p,q)$. Let us
+see an example; say $p = 2$ and $q=2$ then $k = p + q = 4$, since we are
+substracting the likelihood function model to times two this number, the
+higher the order gets, the $AIC$ increases, penalizng more complex models.
+
+$\hat{L}$ (the likelihood function) measures the goodness of fit a model has.
+Comparing it with the distribution function will make it easier to understand.
+It can be seen as the opposite of the distribution function. In the
+distribution function, given a model with fixed parameters, it measuers the
+probability of obvserving a data point. In the likelihood function, given a
+set of data, it tells us  how likely it is that different model parametrs
+generate the data.
+
+Let us see an example from the book Time Series Forecasting by Marco Peixeiroi
+\cite{timeseries}, that helped me understand the concept better:
+
+\begin{itemize}
+    \item  
+        The distribution function tells us that there is a $\frac{1}{6}$
+        probability that we'll observe ${1,2,3,4,5,6}$
+    \item  
+        Suppose that we roll the die 10 times an you obtain
+        $[1,5,3,4,6,2,4,3,2,1]$ The likelihood function will determine how
+        likely is that the die has six sides.
+\end{itemize}
+
+So the question in our context is, \emph{How likely is that my observed data
+is coming from an $ARMA(1,1)$} If a model fits the data really well, the
+maximum value of likelihood will be high \cite{timeseries}. Since $AIC$
+function subtracts the $ln(\hat{L})$ from $2k$, it balance between
+underfitting and overfitting.
+
+Taking into account that $AIC$ quantifies the quality of a model in relation
+to other models only.  so it is a relative measure of quality.  What we end
+upj doing in pracitce is iterating through some combinations of $p$ and $q$,
+to calculate the $AIC$ values and selecting the one with the lowest score.
+Findingin this way the order of $ARMA(p,q)$. We can extend this process to
+even more complex models like $SARIMA(p,d,q)(P,D,Q)_m$, $AIC$ will help us
+find this hyperparameters (except from $d$ and $D$, but more on that later).
+
+Coming back to our inital problem (finding the order of $ARMA(p,q)$), after
+finding a combination of $p$ and $q$, we still need to check one more thing.
+
+\subsubsection{Calculating Residuals}
+
+The residuals of a model are simply the difference between the predicted
+values and the actual values \cite{timeseries}.  If the process found by the
+$ARMA(p,q)$ model is the same as the original process then the residuals would
+be just $\epsilon_t$ (the error terms), meaning white noise, we cannot
+preddict these values based on past values since they are complete random. In
+summary, we want our residuals to behave like white noise (completely random).
+
+We will need to check for two things, \emph{Q-Q plot} and the \emph{Ljung-Box
+test}. 
+
+The quantile-quantile \emph{Q-Q} plot is a graphical technique for determining
+if two data sets come from populations with a common distribution.  This is a
+plot of the quantiles of the first data set against the quantiles of the
+second data set. By a quantile, we mean the fraction (or percent) of points
+below the given value. \cite{qq}
+
+Basically we are going to plot the distribution of our residuals in one axis,
+and a normal distribution in the other axis. If $y=x$ this means that our
+residuls behave exactly like a normal distribution, meaning they are white
+noise/completely random, so the order we chose (for $p$ and $q$) is good.
+
+Luckily for us, the python module \emph{statsmodels} \cite{statsmodels},
+allows us to do diagnostic plots for our residuals in a really easy way. 
+
+\begin{figure}[htbp]
+  \centering
+  \includesvg[width=1\columnwidth]{images/diag.svg}
+    \caption{Example Diagnositc Plots for the residuals of a $ARMA(1,1)$ model}
+  \label{fig:diag-example}
+\end{figure}
+
+Please refer to Figure~\ref{fig:diag-example}. In the top left we find a plot
+of the residuals, we can see here that they are stationary, and they do not
+have a trend. This is good, because that is the behaviout of a normal
+distribution. In the top right, we can see a histogram of the residuals, it
+looks like a normal distribution. In the bottom right, we can see the
+autocorrelation function of the residuals, as we can see there is no
+significant lag after lag 0, therefore there is no apparent autocorrelation.
+
+Lastly on the bottom left, we found the Q-Q plot, as stated above, it is
+comparing the distribution of our residuals with a normal distribtution. We
+can see that in almost all instances $y=x$ meaning our residuals behave like a
+normal distribution, therefore our residuals most be white noise (completely
+random) which is what we expected.
+
+Now that we covered the Q-Q plot 
+
+
 
 \section{Eperimental framework}
 % Describe your methodology here
