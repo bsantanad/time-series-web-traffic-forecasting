@@ -113,8 +113,9 @@ In this section we will define what a time series is and how it is composed.
 We are also going to discuss the $MA(q)$ model and the $AR(p)$ model, which
 serve as a base for $SARIMAX(p,d,q)(P,D,Q)_m$. Understanding these two parts
 of the model --- I believe --- is the keystone to understanding the model as a
-whole. We are also going to review the steps we are going to follow to tackle
-the problem at hand. So let us start with a simple question...
+whole. We are also going to review how $AR(p)$ and $MA(q)$ come together in
+$ARMA(p,q)$ to model complex time series, and how we can find the orders $p$
+and $q$. Let us start with a simple question...
 
 What is a time series? We can define a time series as a set of points ordered
 in time, usually equally spaced in time. \cite{timeseries} We can decompose
@@ -489,11 +490,34 @@ can see that in almost all instances $y=x$ meaning our residuals behave like a
 normal distribution, therefore our residuals most be white noise (completely
 random) which is what we expected.
 
-Now that we covered the Q-Q plot 
+After having a good Q-Q plot we go to Ljung-Box test to demonstrate that the
+residuals are uncorrelated.
 
+The Ljung-Box test is a statistical test that determines whether the
+autocorrelation of a group of data is significantly different from 0.
+The null hypothesis states that the data is independently distributed,
+meaning that there is no autocorrelation. If the p-value is larger than
+0.05, we cannot reject the null hypothesis meaning that the residuals are
+independently distributed. \cite{timeseries}
 
+Basically if in the Q-Q plot $y = x$ and when doing the Ljung-Box  test we get
+on every lag $p > 0.05$ we can start using the model for forecasting.
 
-\section{Eperimental framework}
+\subsection{Brief Summary}
+
+In this section we saw basic concepts of time series,  like decompostion and
+stationarity. We learned about the $MA(q)$ and $AR(p)$ models, and how they
+work together to form $ARMA(p,q)$ and model complex time series. We say how to
+use $AIC$ to find the order of $p$ and $q$. We also saw how to analyise the
+residuals to diagnose the model and see if we can use it in forecasting. It
+goes without saying that this of course does not cover every single concept
+related to $SARIMAX(p,d,q)(P,D,Q)_m$. The idea of this section is to give an
+understanding of the core concepts behind $SARIMAX(p,d,q)(P,D,Q)_m$, to help
+the reader follow the process we take in Section~\ref{sec:exp}. I encourage
+the reader to refer to the refences we used throught this section for a
+complete understanding of $SARIMAX(p,d,q)(P,D,Q)_m$.
+
+\section{Eperimental framework}\label{sec:exp}
 % Describe your methodology here
 
 \section{Analysis of Results}\label{sec:analysis}
@@ -513,7 +537,6 @@ Marco Peixeiro's expertise and comprehensive coverage of time series
 forecasting techniques have provided me with deep insights and practical
 knowledge. The clear explanations and numerous examples presented in the book
 have greatly enhanced my understanding of this complex subject.
-
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}
