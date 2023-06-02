@@ -1,4 +1,5 @@
 \documentclass[journal]{IEEEtran}
+%\documentclass[10pt, twocolumn]{article}
 
 % Packages
 \usepackage{cite}
@@ -35,7 +36,7 @@
     Time Series
 \end{IEEEkeywords}
 
-\section{Introduction}
+\section{Introduction}\label{sec:intro}
 Very few events are unaffected by time, this offers a compelling rationale
 behind the significance of \emph{time series analysis} within the
 realm of data science. In today's data-driven world companies hoard large
@@ -77,7 +78,7 @@ resources are allocated in advance? I will do my best to try and answer this in
 this short paper
 
 We will use one of the most popular traditional statistical methods used in
-time series forecasting, $SARIMAX(p,d,q)(P,D,Q)_m$. We will find out if this
+time series forecasting, $SARIMA(p,d,q)(P,D,Q)_m$. We will find out if this
 model is powerful enough to create meaningful and accurate forecasts or if
 opting for naive methods to get better results.  we should opt into the world
 of neural networks \footnote{We could also opt into the realm of neural network
@@ -99,7 +100,7 @@ here is that we will try to forecast 3 months into the future given these data
 points
 
 In summary, our objective is to assess the effectiveness of the
-$SARIMAX(p,d,q)(P,D,Q)_m$ model in forecasting three months of web traffic on
+$SARIMA(p,d,q)(P,D,Q)_m$ model in forecasting three months of web traffic on
 chess.com. We will be conducting an analysis by comparing its performance
 against naive forecasting methods. Such forecasts play a crucial role in
 facilitating both resource allocation and performance optimization strategies
@@ -107,11 +108,11 @@ for the website. The conclution an results are shown in Section
 \ref{sec:analysis} and Section \ref{sec:conclusion}
 
 
-\section{Background Study}
+\section{Background Study}\label{sec:back}
 % Discuss related work here
 In this section we will define what a time series is and how it is composed.
 We are also going to discuss the $MA(q)$ model and the $AR(p)$ model, which
-serve as a base for $SARIMAX(p,d,q)(P,D,Q)_m$. Understanding these two parts
+serve as a base for $SARIMA(p,d,q)(P,D,Q)_m$. Understanding these two parts
 of the model --- I believe --- is the keystone to understanding the model as a
 whole. We are also going to review how $AR(p)$ and $MA(q)$ come together in
 $ARMA(p,q)$ to model complex time series, and how we can find the orders $p$
@@ -216,7 +217,7 @@ maybe performs worse than this naive methods, then we would be wasting
 resources every forecast running our complex statistical models. Because we
 could just copy and past the last values, or use the mean, or some other
 baseline model. In Section~\ref {sec:analysis} we will compare our
-$SARIMAX(p,d,q)(P,D,Q)_m$ model with a baseline model and conclude if it is
+$SARIMA(p,d,q)(P,D,Q)_m$ model with a baseline model and conclude if it is
 worth it to use it against some simpler methods.
 
 One last thing on the baseline methods. How do we compare the models against
@@ -381,7 +382,7 @@ models, we wont be able to get the order ($p$ and $q$) using the ACF and PACF
 plot. Luckily for us we can use the \emph{Akaike Information Criterion}
 ($AIC$).
 
-\subsection{Akaike Information Criterion}
+\subsection{Akaike Information Criterion}\label{sub:aic}
 
 The $AIC$ estimates the quality of a model relative to other models.  Given
 that there will be some information lost when a model is fitted to the data,
@@ -396,7 +397,7 @@ Equation~\ref{eq:aic} shows how to calculate $AIC$.
 \end{equation}
 
 Where, $k$ is the number of estimated parameters, $\hat{L}$ maximum value of
-the likehood function model. 
+the likehood function model.
 
 Using $AIC$ to select our model, allows us to keep a balance between the
 complexity of the model and its goodness of fitting the data. This is becase
@@ -417,10 +418,10 @@ Let us see an example from the book Time Series Forecasting by Marco Peixeiroi
 \cite{timeseries}, that helped me understand the concept better:
 
 \begin{itemize}
-    \item  
+    \item
         The distribution function tells us that there is a $\frac{1}{6}$
         probability that we'll observe ${1,2,3,4,5,6}$
-    \item  
+    \item
         Suppose that we roll the die 10 times an you obtain
         $[1,5,3,4,6,2,4,3,2,1]$ The likelihood function will determine how
         likely is that the die has six sides.
@@ -443,7 +444,7 @@ find this hyperparameters (except from $d$ and $D$, but more on that later).
 Coming back to our inital problem (finding the order of $ARMA(p,q)$), after
 finding a combination of $p$ and $q$, we still need to check one more thing.
 
-\subsubsection{Calculating Residuals}
+\subsubsection{Calculating Residuals}\label{sub:resid}
 
 The residuals of a model are simply the difference between the predicted
 values and the actual values \cite{timeseries}.  If the process found by the
@@ -453,7 +454,7 @@ preddict these values based on past values since they are complete random. In
 summary, we want our residuals to behave like white noise (completely random).
 
 We will need to check for two things, \emph{Q-Q plot} and the \emph{Ljung-Box
-test}. 
+test}.
 
 The quantile-quantile \emph{Q-Q} plot is a graphical technique for determining
 if two data sets come from populations with a common distribution.  This is a
@@ -467,7 +468,7 @@ residuls behave exactly like a normal distribution, meaning they are white
 noise/completely random, so the order we chose (for $p$ and $q$) is good.
 
 Luckily for us, the python module \emph{statsmodels} \cite{statsmodels},
-allows us to do diagnostic plots for our residuals in a really easy way. 
+allows us to do diagnostic plots for our residuals in a really easy way.
 
 \begin{figure}[htbp]
   \centering
@@ -511,14 +512,247 @@ work together to form $ARMA(p,q)$ and model complex time series. We say how to
 use $AIC$ to find the order of $p$ and $q$. We also saw how to analyise the
 residuals to diagnose the model and see if we can use it in forecasting. It
 goes without saying that this of course does not cover every single concept
-related to $SARIMAX(p,d,q)(P,D,Q)_m$. The idea of this section is to give an
-understanding of the core concepts behind $SARIMAX(p,d,q)(P,D,Q)_m$, to help
+related to $SARIMA(p,d,q)(P,D,Q)_m$. The idea of this section is to give an
+understanding of the core concepts behind $SARIMA(p,d,q)(P,D,Q)_m$, to help
 the reader follow the process we take in Section~\ref{sec:exp}. I encourage
 the reader to refer to the refences we used throught this section for a
-complete understanding of $SARIMAX(p,d,q)(P,D,Q)_m$.
+complete understanding of $SARIMA(p,d,q)(P,D,Q)_m$.
 
-\section{Eperimental framework}\label{sec:exp}
-% Describe your methodology here
+\section{Experimental framework}\label{sec:exp}
+% Objective or Research Question
+% Experimental Design
+% Data Collection
+% Variables
+% Procedure
+
+In this section we will FIXME
+
+As stated in Section~\ref{sec:intro}, our objective is to assess the effectiveness of
+the $SARIMA(p,d,q)(P,D,Q)_m$ model in forecasting three months of web traffic
+on chess.com. We will be conducting an analysis by comparing its performance
+against naive forecasting methods. To be more specific we will compare its
+performance, against two \emph{naive methods} (also known as baseline models),
+\emph{Last Known Value} and \emph{Window Average}.
+
+Since we are trying to forecast 3 months into the future, for our first naive
+method (\emph{Last Known Value}), we will take the values of the last 3 months
+and use them as a forecast. For our second baseline model (\emph{Window
+Average}) we will take a window of time, calculate the average and use that as
+a forecast. In this case, that window of time will be the the last 6 months.
+We will compare the models using the $MAPE$ function discussed in
+Section~\ref{sec:back}.
+
+In Section~\ref{sec:intro} we stated the traffic of a website is not public
+information. We got the information from a thrid-party
+\href{http://semrush.com}{semrush}. Semrush tools provides web traffic for
+different websites. We need to take into account that we are taking the data
+from a third party, so there is a some level of uncertainty associated with
+its accuracy. Semrush provided us with the historic information month by month
+of traffic in chess.com from January 2012 to March 2023. Since we are planning
+to forecast three months into the future, we will split our data, in sets, one
+for training and one for testing. We will take the information from Janurary
+2012 up to December 2022 and make that our training set. While the first three
+months of 2023 will serve as testing data. Meaning we will compare our
+forecast with the actual information of these 3 months.
+
+Let us start by outlining in general terms the process we will follow.
+
+\begin{enumerate}
+    \item Gather Data Points
+    \item Decompose Time series
+    \item Check for Stationarity
+    \item Fit every combination of $SARIMA(p,d,q)(P,D,Q)_m$
+    \item Select model with lowest $AIC$ \footnote{Refer to
+        section~\ref{sub:aic} if you do not know what $AIC$ is.}
+    \item Diagnose residuals
+    \item Make forecast
+\end{enumerate}
+
+\subsection{Gather Data Points}
+
+We downloaded the time series as a csv file, meaning it was easy to manipulate
+using python. The first entries of the time series, look something like
+Table~\ref{tab:traffic}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Traffic Data}
+  \label{tab:traffic}
+  \begin{tabular}{|c|c|c|}
+    \hline
+    Index & Date & Traffic \\
+    \hline
+    0 & 2012-01 & 526370 \\
+    1 & 2012-02 & 489447 \\
+    2 & 2012-03 & 482083 \\
+    3 & 2012-04 & 497484 \\
+    4 & 2012-05 & 531260 \\
+    \hline
+  \end{tabular}
+\end{table}
+
+We can see that the entries are collected monthly and on further inspection we
+have no missing values. If we plot the date against the traffic we get
+something like Figure~\ref{fig:obs}
+
+\begin{figure}[htbp]
+  \centering
+  \includesvg[width=1\columnwidth]{images/obs.svg}
+    \caption{Observed chess.com traffic from January 2012 to March 2023}
+  \label{fig:obs}
+\end{figure}
+
+We can see a big spike on 2017, and an almost constat trend upward. For this
+reason we will drop the values from before December 2016, since taking these
+items into account will make our model forecast worse. We are left with 76
+data points, which should be enough for our forecast.
+
+As mentioned above, we will split the dataset, into training an testing
+dataset. We need to take the last 3 months off from our dataset to get the
+actual training data points. In Figure~\ref{fig:obs-2} we can see the dataset
+once we have done this two changes.
+
+\begin{figure}[htbp]
+  \centering
+  \includesvg[width=1\columnwidth]{images/obs-2.svg}
+    \caption{Observed chess.com traffic from December 2016 to March 2023, with
+        testing points grayed out}
+    \label{fig:obs-2}
+\end{figure}
+
+\subsection{Decompose Time series}
+
+Now that we have our time series ready let us analyse the decomposition of the
+time series. \footnote{If you do not know what decomposing the time series
+means please refer to Section~\ref{sec:back} or Figure~\ref{fig:decompose}}.
+Please refer to Figure~\ref{fig:decom-chess}
+
+\begin{figure}[htbp]
+  \centering
+  \includesvg[width=1\columnwidth]{images/decom.svg}
+    \caption{Decomposed chess.com traffic from December 2016 to March 2023}
+    \label{fig:decom-chess}
+\end{figure}
+
+In the first plot, top to bottom, we can see the observed data, which is the
+same as in Figure~\ref{fig:obs-2}. Next plot we can see that the data has
+mostly a slow moving change upwards, meaning it has a positive trend so most
+likely we are not dealing with a stationary process. Moving one plot down we
+will see the seasonality of the data, it does not seem to have any, there are
+no apparent cycle that occurs over a fixed period of time.  If this is hard to
+see, compare Figure~\ref{fig:decompose} with Figure~\ref{fig:decom-chess}. In
+Figure~\ref{fig:decompose} we can see a clear cycle that occurs every year, in
+Figure ~\ref{fig:decom-chess} we see nothing similar. This means that it is
+likely our process does not has seasonality. Meaning all the part of
+Seasonality in $SARIMA(p,d,q)(P,D,Q)_m$ can be discarded, we would end up with
+$ARIMA(p,d,q)$. This reduces the combinations of hyperparameters we need to
+calculate.\footnote{Please refer to subsection~\ref{sub:aic} to learn more
+about how we find the hyperparameters ($ARIMA(p,d,q)$ order)}.
+
+\subsection{Check for Stationarity}
+
+We now know that it is likely that our time series is not stationary,
+nevertheless let us run our \emph{Augmented Dickey-Fuller} (ADF) test.
+\footnote{To learn more about the \emph{ADF} test please go back to
+Section~\ref{sec:back} or to \cite{adf}}. The ADF statistic gave us $-0.34789$
+and $p = 0.91844$ this means $p > 0.05$, therefore we cannot reject the null
+hypothesis, and the series is not stationary. We use differencing to make it
+stationary. After differencing it once we get a new ADF statistic of
+$-3.18885$ and $p = 0.02063$ this means $p < 0.05$, therefore we can reject
+the null hypothesis and say that the series is stationary after calculate the
+first discrete difference. This means we have our first hyperparamet for
+$ARIMA(p,d,q)$, $d = 1$ \footnote{$d$ is directly connected to the number of
+times we have to apply a differenciation to make the series stationary, if
+after applying the first differenciation $p > 0.05$ we would have to
+differentiate again and $d$ would become 2}.
+
+\subsection{Fit every combination of $SARIMA(p,d,q)(P,D,Q)_m$}
+
+We have stated above that our model is $SARIMA(p,d,q)(P,D,Q)_m$ but with the
+seasonality part set to zeros. Therefore we only need to find the combination
+of the $p$ and $q$ orders. This becuase $P=0$, $D=0$, $Q=0$ since the time
+series has no seasonality. We will try all the combinations generated by the
+Cartesian product of $A\times A$ where $A$ is a set defined as $A =
+\{0,1,2,3,4,5,6,7,8,9\}$. This means we will try $ARIMA(1,1,1)$, then
+$ARIMA(1,1,2)$ up to $ARIMA(1,1,9)$, to then go $ARIMA(2,1,1)$ and try all
+combinations. We will test each model with the $AIC$ go to
+Section~\ref{sub:aic} for more information on how it works. Using this, we get
+table, of which the first 5 entries are shown in Table~\ref{tab:aic}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{AIC Values}
+  \label{tab:aic}
+  \begin{tabular}{|c|c|c|}
+    \hline
+    Index & (p,q) & AIC \\
+    \hline
+    0 & (3, 1) & 2078.407462 \\
+    1 & (0, 5) & 2079.774906 \\
+    2 & (4, 1) & 2080.024761 \\
+    3 & (3, 2) & 2080.353652 \\
+    4 & (2, 3) & 2080.360632 \\
+    5 & (0, 6) & 2081.280308 \\
+    6 & (1, 5) & 2081.292037 \\
+    \hline
+  \end{tabular}
+\end{table}
+
+\subsection{Select Model with Lowest $AIC$}
+
+We can see that our top choice is for $p=3$ and $q=1$. The second option, is
+quite intresting it says $p=0$ and $q=5$, meaning a $MA(5)$ process might
+model the time series if we make it stationary. This becuase if $p=0$ we can
+take all the $AR(p)$ part of the process. It is worth exploring the top two
+combinations and compare then against each other, see which one performs
+better.
+
+\subsection{Diagnose Residuals}
+
+\subsubsection{$ARIMA(3,1,1)$}\label{sub:31}
+
+\begin{figure}[htbp]
+  \centering
+  \includesvg[width=1\columnwidth]{images/diag-31.svg}
+    \caption{Diagnostics plots for $ARIMA(3,1,1)$ residuals}
+    \label{fig:diag-31}
+\end{figure}
+
+Please refer to Figure~\ref{fig:diag-31} while reading this subsection. In the
+top left plot we can see that when plotted, the residuals seem to be
+stationary, this is a good sign, becuase we do not want our residuals to have
+any trend. On the top right plot we can see that the residuals behave similar
+to a normal distribution. In the bottom right plot (Q-Q plot) we see that in
+almost every point $y$ is similar to $x$, meaning the distribution of our
+residuals and a normal distribution are similar. Finally in the bottom right
+plot, we see that the residuals do no seem to have any correlation. So
+everything points that our residuals behave like white noise, which is the
+result we want.
+
+When doing the Ljung-Box test, discussed in Section~\ref{sub:resid}, we saw
+that at any given lag $p > 0.05$ meaning we cannot reject the null hypothesis,
+therefore we can say that no lag is correlated.
+
+\subsubsection{$ARIMA(0,1,5)$}
+
+Please refer to Figure~\ref{fig:diag-05} while reading this subsection.
+\begin{figure}[htbp]
+  \centering
+  \includesvg[width=1\columnwidth]{images/diag-05.svg}
+    \caption{Diagnostics plots for $ARIMA(0,1,5)$ residuals}
+    \label{fig:diag-05}
+\end{figure}
+
+The analysis for Figure~\ref{fig:diag-31} is pretty much the same as the one
+presented in Subsection~\ref{sub:31} the only difference is on the Q-Q plot ,
+and it is not significant so I wont spend time discussing it.
+
+Similar to $ARIMA(3,1,1)$ when doing the Ljung-Box test, discussed in
+Section~\ref{sub:resid}, we saw that at any given lag $p > 0.05$ meaning we
+cannot reject the null hypothesis, therefore we can say that no lag is
+correlated.
+
+\subsection{Forecast}
 
 \section{Analysis of Results}\label{sec:analysis}
 % Present your experimental results here
