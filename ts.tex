@@ -23,26 +23,40 @@
 \maketitle
 
 \begin{abstract}
-% Your abstract goes here
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum
-    dignissim felis in nisi lobortis, nec tincidunt nulla interdum. Nulla
-    facilisi. Proin et augue risus. Nullam non ipsum in nisi accumsan bibendum.
-    Curabitur sed elit at est aliquet convallis. Nullam dictum ullamcorper
-    mauris id hendrerit. Mauris a dui tincidunt, feugiat magna vel, interdum
-    sapien.
+    In recent years, the growth of online platforms has driven the need for
+    accurate and reliable web traffic forecasting techniques. This paper
+    compares different naive models against the application of the
+    Auto-Regressive Integrated Moving Average (ARIMA) model to forecast web
+    traffic for chess.com.
+
+    We first dive into a background study on how $ARMA(p,q)$ works and the core
+    ideas behind it. We present how to choose the correct order of $p$ and $q$
+    using \emph{Akaike Information Criterion} (AIC). Then we find the right
+    model for our specific case. 
+
+    We then showcase how $ARIMA(0,1,5)$ outperforms other naive models as well
+    as $ARIMA(3,1,1)$. Implying that the traffic of chess.com can be best
+    modeled with a $MA(q)$ process .
+
+    Overall, this paper showcases the successful application of the
+    $ARIMA(p,d,q)$ model to forecast web traffic for chess.com. It contributes
+    to the existing literature on web traffic forecasting and demonstrates the
+    potential of time series analysis techniques in capturing the dynamic
+    nature of online user behavior.
 \end{abstract}
 
 \begin{IEEEkeywords}
 % Your keywords go here
     Forecasting
     Time Series
+    ARIMA
 \end{IEEEkeywords}
 
 \section{Introduction}\label{sec:intro}
 Very few events are unaffected by time, this offers a compelling rationale
 behind the significance of \emph{time series analysis} within the
 realm of data science. In today's data-driven world companies hoard large
-amounts of data over time, which contain imporant information about their
+amounts of data over time, which contain important information about their
 business patterns. Consequently, time series analysis has permeated various
 fields, from the traditional ones like finance and economy --- where someone
 can forecast sales or the EPS of a public company --- to lesser explored
@@ -53,7 +67,7 @@ piece of work we will delve into the realm of web traffic.
 It is common for web applications to keep a register of their traffic at all
 times. Meaning, if you are the owner of a website it is likely that you have
 access to the data sent and received by your visitors. What is more, you
-probably have access to the Clickstream Data of your users, which is the record
+probably have access to the Click-stream Data of your users, which is the record
 of an individual’s clicks through their journey on the Internet (in this case,
 your website).
 
@@ -63,8 +77,8 @@ statistical models in time series, we can forecast the traffic of a website.
 Why would we want to do this? \emph{Resource Allocation} and \emph{Performance
 Optimization}. By forecasting website traffic, we can estimate the expected
 number of visitors and allocate appropriate resources to handle the load. This
-can either save costs in the infrastrucutre of the website like server
-capacity, bandwith --- when a low number of visitors is present --- or it can
+can either save costs in the infrastructure of the website like server
+capacity, bandwidth --- when a low number of visitors is present --- or it can
 save the website's users from seeing an overload error when the server's
 capacity is at peak.
 
@@ -87,10 +101,10 @@ of neural networks \footnote{We could also opt into the realm of neural network
 for time series, but this is not covered in the paper, if you are interested
 on that please refer to \cite{nn}}
 
-Unfortunately, the taffic of a website is not public information. Meaning we
+Unfortunately, the traffic of a website is not public information. Meaning we
 cannot get the actual time series from chess.com itself. We need to rely on
 other sources to get the actual information. After reviewing the possible
-options we decied to go with  \href{http://semrush.com}{semrush}, a "all-in-one
+options we deiced to go with  \href{http://semrush.com}{semrush}, a "all-in-one
 tool suite for improving online visibility and discovering marketing insights."
 \cite{semrush}. One of semrush tools provides web traffic for different
 websites. Of course we need to take into account that we are taking the data
@@ -106,7 +120,7 @@ $SARIMA(p,d,q)(P,D,Q)_m$ model in forecasting three months of web traffic on
 chess.com. We will be conducting an analysis by comparing its performance
 against naive forecasting methods. Such forecasts play a crucial role in
 facilitating both resource allocation and performance optimization strategies
-for the website. The conclution an results are shown in Section
+for the website. The conclusion an results are shown in Section
 \ref{sec:analysis} and Section \ref{sec:conclusion}
 
 
@@ -131,12 +145,12 @@ any time series into 3 components:
         of time.
 
     \item \emph{residuals}, what can not be explained by the trend of seasonal
-        components, this is usually whtie noise. Any model wont be able to
+        components, this is usually white noise. Any model wont be able to
         forecast any of this part, since it is completely random
 \end{itemize}
 
 Now that we have defined these concepts of a time series, let us see how they
-llok in action. To demostrate how this looks in a time series we will use
+look in action. To demonstrate how this looks in a time series we will use
 classical time series presented in \emph{Box, G. E. P., Time Series Analysis,
 Forecasting and Control.} \cite{airline}. The classic Box \& Jenkins airline
 data presents monthly totals of international airline passengers, 1949 to
@@ -203,13 +217,13 @@ categories.
 
 Before jumping into $MA(q)$ and $AR(p)$ I want to explain some concepts, the
 first one is \emph{baseline models}. A baseline model is a trivial solution
-to our problem, it uses heuristics more than deep statsticts knowledge or
+to our problem, it uses heuristics more than deep statistics knowledge or
 anything else. It might be clearer if we use an example. Say we have a time
 series on the sales of XYZ, after getting the data points we calculate the
 mean and say "I forecast next month our sales will be the mean of all the time
 series". We got this forecast using a simple statistics concept like it is the
 mean. It is likely that  we can get a better forecast than this using more
-complex stastics. Why then should we bother making this naive models? They
+complex statistics. Why then should we bother making this naive models? They
 allow us to compare our complex model with something. A common example of a
 baseline model is just simply using the last value known. For example, if we
 have five years worth of data points, collected each month, and we want to
@@ -235,9 +249,9 @@ and autocorrelation, and these properties are independent of time
 stationarity in time series. Lucky for us we can transform the time series to
 become stationary, there are many ways to transform it but the simplest (and
 the one we are going to use) is \emph{differencing}. This consists on
-calcluate the changes from one time step to another ($y'_t = y_t - y_{t-1}$). This transformation helps
+calculate the changes from one time step to another ($y'_t = y_t - y_{t-1}$). This transformation helps
 stabilize the mean. Which reduces the trend and seasonality effects. This
-means that we also need to make sure we do an inverse transfrom of the data
+means that we also need to make sure we do an inverse transform of the data
 after finishing the model.
 
 We can test for stationarity with the \emph{Augmented Dickey-Fuller} (ADF) test
@@ -257,7 +271,7 @@ average process ($MA(q)$) and the autoregressive process ($AR(p)$)
 
 \subsection{Moving Average Process}\label{sub:ma}
 
-In a moving average ($MA$) process, the current value depens linearly on the
+In a moving average ($MA$) process, the current value depends linearly on the
 mean of the series, the current error term, and past error
 terms.\cite{timeseries}. It is usually denoted as $MA(q)$ where $q$ is the
 order, meaning the number of past error terms that affect the present value).
@@ -332,12 +346,12 @@ would look.
   \centering
   \includesvg[width=1\columnwidth]{images/pacf-ar.svg}
     \caption{Example PACF plot, We can see that we have no significant
-        coeficients after lag 3, meaning $AR(p)$ where $p=3$, we have an
+        coefficients after lag 3, meaning $AR(p)$ where $p=3$, we have an
         autoregressive process of order 3}
     \label{fig:pacf}
 \end{figure}
 
-We can see in this example plot that we have no significant coeficients after
+We can see in this example plot that we have no significant coefficients after
 lag 3, therefore we can say that this process is $AR(3)$, meaning we have an
 autoregressive process of order 3.
 
@@ -348,7 +362,7 @@ background on time series analysis), will see that something is missing.  What
 happens when the ACF plot shows a slowly decaying pattern or a sinusoidal
 pattern, and, when plotting PACF you see too, a slowly decaying pattern or a
 sinusoidal pattern. Meaning we cannot infer an order from the ACF plot or from
-the PACF plot. Then, we may be in the precnese of a complex process, where we
+the PACF plot. Then, we may be in the presence of a complex process, where we
 will need to combine $AR(p)$ and $MA(q)$ to model it, this is where the
 $ARMA(p, q)$ model comes into play.
 
@@ -379,7 +393,7 @@ process, since the order $p = 0$ cancels the $AR(p)$ portion. An $ARMA(p,0)$
 process is equivalent to an $AR(p)$ process, since the order $q = 0$ cancels
 the $MA(q)$ portion.
 
-This still does not solve the issue I stated above, even if we combien both
+This still does not solve the issue I stated above, even if we combine both
 models, we wont be able to get the order ($p$ and $q$) using the ACF and PACF
 plot. Luckily for us we can use the \emph{Akaike Information Criterion}
 ($AIC$).
@@ -399,21 +413,21 @@ Equation~\ref{eq:aic} shows how to calculate $AIC$.
 \end{equation}
 
 Where, $k$ is the number of estimated parameters, $\hat{L}$ maximum value of
-the likehood function model.
+the like-hood function model.
 
 Using $AIC$ to select our model, allows us to keep a balance between the
-complexity of the model and its goodness of fitting the data. This is becase
+complexity of the model and its goodness of fitting the data. This is because
 $k$ is directly affected by the order of $p$ and $q$ in $ARMA(p,q)$. Let us
 see an example; say $p = 2$ and $q=2$ then $k = p + q = 4$, since we are
-substracting the likelihood function model to times two this number, the
-higher the order gets, the $AIC$ increases, penalizng more complex models.
+subtracting the likelihood function model to times two this number, the
+higher the order gets, the $AIC$ increases, penalizing more complex models.
 
 $\hat{L}$ (the likelihood function) measures the goodness of fit a model has.
 Comparing it with the distribution function will make it easier to understand.
 It can be seen as the opposite of the distribution function. In the
-distribution function, given a model with fixed parameters, it measuers the
-probability of obvserving a data point. In the likelihood function, given a
-set of data, it tells us  how likely it is that different model parametrs
+distribution function, given a model with fixed parameters, it measures the
+probability of observing a data point. In the likelihood function, given a
+set of data, it tells us  how likely it is that different model parameters
 generate the data.
 
 Let us see an example from the book Time Series Forecasting by Marco Peixeiro
@@ -433,17 +447,17 @@ So the question in our context is, \emph{How likely is that my observed data
 is coming from an $ARMA(1,1)$} If a model fits the data really well, the
 maximum value of likelihood will be high \cite{timeseries}. Since $AIC$
 function subtracts the $ln(\hat{L})$ from $2k$, it balance between
-underfitting and overfitting.
+under-fitting and over-fitting.
 
 Taking into account that $AIC$ quantifies the quality of a model in relation
 to other models only.  so it is a relative measure of quality.  What we end
-upj doing in pracitce is iterating through some combinations of $p$ and $q$,
+up doing in practice is iterating through some combinations of $p$ and $q$,
 to calculate the $AIC$ values and selecting the one with the lowest score.
-Findingin this way the order of $ARMA(p,q)$. We can extend this process to
+Finding this way the order of $ARMA(p,q)$. We can extend this process to
 even more complex models like $SARIMA(p,d,q)(P,D,Q)_m$, $AIC$ will help us
 find this hyperparameters (except from $d$ and $D$, but more on that later).
 
-Coming back to our inital problem (finding the order of $ARMA(p,q)$), after
+Coming back to our initial problem (finding the order of $ARMA(p,q)$), after
 finding a combination of $p$ and $q$, we still need to check one more thing.
 
 \subsubsection{Calculating Residuals}\label{sub:resid}
@@ -452,7 +466,7 @@ The residuals of a model are simply the difference between the predicted
 values and the actual values \cite{timeseries}.  If the process found by the
 $ARMA(p,q)$ model is the same as the original process then the residuals would
 be just $\epsilon_t$ (the error terms), meaning white noise, we cannot
-preddict these values based on past values since they are complete random. In
+predict these values based on past values since they are complete random. In
 summary, we want our residuals to behave like white noise (completely random).
 
 We will need to check for two things, \emph{Q-Q plot} and the \emph{Ljung-Box
@@ -466,7 +480,7 @@ below the given value. \cite{qq}
 
 Basically we are going to plot the distribution of our residuals in one axis,
 and a normal distribution in the other axis. If $y=x$ this means that our
-residuls behave exactly like a normal distribution, meaning they are white
+residuals behave exactly like a normal distribution, meaning they are white
 noise/completely random, so the order we chose (for $p$ and $q$) is good.
 
 Luckily for us, the python module \emph{statsmodels} \cite{statsmodels},
@@ -475,20 +489,20 @@ allows us to do diagnostic plots for our residuals in a really easy way.
 \begin{figure}[htbp]
   \centering
   \includesvg[width=1\columnwidth]{images/diag.svg}
-    \caption{Example Diagnositc Plots for the residuals of a $ARMA(1,1)$ model}
+    \caption{Example Diagnostic Plots for the residuals of a $ARMA(1,1)$ model}
   \label{fig:diag-example}
 \end{figure}
 
 Please refer to Figure~\ref{fig:diag-example}. In the top left we find a plot
 of the residuals, we can see here that they are stationary, and they do not
-have a trend. This is good, because that is the behaviout of a normal
+have a trend. This is good, because that is the behavior of a normal
 distribution. In the top right, we can see a histogram of the residuals, it
 looks like a normal distribution. In the bottom right, we can see the
 autocorrelation function of the residuals, as we can see there is no
 significant lag after lag 0, therefore there is no apparent autocorrelation.
 
 Lastly on the bottom left, we found the Q-Q plot, as stated above, it is
-comparing the distribution of our residuals with a normal distribtution. We
+comparing the distribution of our residuals with a normal distribution. We
 can see that in almost all instances $y=x$ meaning our residuals behave like a
 normal distribution, therefore our residuals most be white noise (completely
 random) which is what we expected.
@@ -508,16 +522,16 @@ on every lag $p > 0.05$ we can start using the model for forecasting.
 
 \subsection{Brief Summary}
 
-In this section we saw basic concepts of time series,  like decompostion and
+In this section we saw basic concepts of time series,  like decomposition and
 stationarity. We learned about the $MA(q)$ and $AR(p)$ models, and how they
 work together to form $ARMA(p,q)$ and model complex time series. We say how to
-use $AIC$ to find the order of $p$ and $q$. We also saw how to analyise the
+use $AIC$ to find the order of $p$ and $q$. We also saw how to analysis the
 residuals to diagnose the model and see if we can use it in forecasting. It
 goes without saying that this of course does not cover every single concept
 related to $SARIMA(p,d,q)(P,D,Q)_m$. The idea of this section is to give an
 understanding of the core concepts behind $SARIMA(p,d,q)(P,D,Q)_m$, to help
 the reader follow the process we take in Section~\ref{sec:exp}. I encourage
-the reader to refer to the refences we used throught this section for a
+the reader to refer to the references we used throughout this section for a
 complete understanding of $SARIMA(p,d,q)(P,D,Q)_m$.
 
 \section{Experimental framework}\label{sec:exp}
@@ -545,14 +559,14 @@ We will compare the models using the $MAPE$ function discussed in
 Section~\ref{sec:back}.
 
 In Section~\ref{sec:intro} we stated the traffic of a website is not public
-information. We got the information from a thrid-party
+information. We got the information from a third-party
 \href{http://semrush.com}{semrush}. Semrush tools provides web traffic for
 different websites. We need to take into account that we are taking the data
 from a third party, so there is a some level of uncertainty associated with
 its accuracy. Semrush provided us with the historic information month by month
 of traffic in chess.com from January 2012 to March 2023. Since we are planning
 to forecast three months into the future, we will split our data, in sets, one
-for training and one for testing. We will take the information from Janurary
+for training and one for testing. We will take the information from January
 2012 up to December 2022 and make that our training set. While the first three
 months of 2023 will serve as testing data. Meaning we will compare our
 forecast with the actual information of these 3 months.
@@ -604,7 +618,7 @@ something like Figure~\ref{fig:obs}
   \label{fig:obs}
 \end{figure}
 
-We can see a big spike on 2017, and an almost constat trend upward. For this
+We can see a big spike on 2017, and an almost constant trend upward. For this
 reason we will drop the values from before December 2016, since taking these
 items into account will make our model forecast worse. We are left with 76
 data points, which should be enough for our forecast.
@@ -624,7 +638,7 @@ once we have done this two changes.
 
 \subsection{Decompose Time series}\label{sub:decompose-time-series}
 
-Now that we have our time series ready let us analyse the decomposition of the
+Now that we have our time series ready let us analyze the decomposition of the
 time series. \footnote{If you do not know what decomposing the time series
 means please refer to Section~\ref{sec:back} or Figure~\ref{fig:decompose}}.
 Please refer to Figure~\ref{fig:decom-chess}
@@ -662,10 +676,10 @@ hypothesis, and the series is not stationary. We use differencing to make it
 stationary. After differencing it once we get a new ADF statistic of
 $-3.18885$ and $p = 0.02063$ this means $p < 0.05$, therefore we can reject
 the null hypothesis and say that the series is stationary after calculate the
-first discrete difference. This means we have our first hyperparamet for
+first discrete difference. This means we have our first hyperparemeter for
 $ARIMA(p,d,q)$, $d = 1$ \footnote{$d$ is directly connected to the number of
-times we have to apply a differenciation to make the series stationary, if
-after applying the first differenciation $p > 0.05$ we would have to
+times we have to apply a differentiation to make the series stationary, if
+after applying the first differentiation $p > 0.05$ we would have to
 differentiate again and $d$ would become 2}.
 
 \subsection{Fit every combination of $SARIMA(p,d,q)(P,D,Q)_m$}
@@ -703,7 +717,7 @@ table, of which the first 5 entries are shown in Table~\ref{tab:aic}.
 \subsection{Select Model with Lowest $AIC$}
 
 We can see that our top choice is for $p=3$ and $q=1$. The second option, is
-quite intresting it says $p=0$ and $q=5$, meaning a $MA(5)$ process might
+quite interesting it says $p=0$ and $q=5$, meaning a $MA(5)$ process might
 model the time series if we make it stationary. This becuase if $p=0$ we can
 take all the $AR(p)$ part of the process. It is worth exploring the top two
 combinations and compare then against each other, see which one performs
@@ -772,19 +786,19 @@ $ & $ARIMA(0,1,5)$ \\
   \end{tabular}
 \end{table*}
 
-We have defined the models we will use to make the foreacasts $ARIMA(3,1,1)$
+We have defined the models we will use to make the forecast $ARIMA(3,1,1)$
 and $ARIMA(0,1,5)$. Now we will insert the forecasts in a table side by side
 with the testing set (the actual values). Please refer to
 Table~\ref{tab:traffic} to see this results. It is hard to visualize which
 model did better by just looking at the values on the table, in the next
-section we will use plots, as well as the $MAPE$ to see which model perfomed
+section we will use plots, as well as the $MAPE$ to see which model performed
 better.
 
 
 \section{Analysis of Results}\label{sec:analysis}
 
 In this section we will compare the forecasts the different methods we
-used produced. The models we are going to compare are the followig
+used produced. The models we are going to compare are the following
 
 \begin{itemize}
 
@@ -806,7 +820,7 @@ used produced. The models we are going to compare are the followig
 \end{itemize}
 
 Table~\ref{tab:traffic} shows the actual traffic value, compared with these 4
-models, but to get a better grasp of how they perfom we can direct ourselves to
+models, but to get a better grasp of how they perform we can direct ourselves to
 Figure~\ref{fig:forecast-large}. Figure~\ref{fig:forecast-zoom} represents the
 same information but from a closer point of view.
 
@@ -827,12 +841,12 @@ same information but from a closer point of view.
     \label{fig:forecast-zoom}
 \end{figure}
 
-It seems like the worst perfoming model is \emph{Window Average}, this is not
+It seems like the worst performing model is \emph{Window Average}, this is not
 a big surprise since it is a static naive model. It will forecast the same
 every month and wont take into account trends. We also see that $ARIMA(3,1,1)$
-and $ARIMA(0,1,5)$ seem to perfom pretty similar. Nevertheless before jumping
+and $ARIMA(0,1,5)$ seem to perform pretty similar. Nevertheless before jumping
 into conclusions let us calculate the $MAPE$ (mean absolute percentage error)
-of each model. It will basically tell us how off we were against the acutal
+of each model. It will basically tell us how off we were against the actual
 values on average. Please refer to Figure~\ref{fig:mape}.
 
 \begin{figure}[htbp]
@@ -850,13 +864,13 @@ be, $7.62\%$ above or below the actual value, making this a bad model relative
 to the next two.
 
 We then can take a look at $ARIMA(3,1,1)$ and $ARIMA(0,1,5)$, needless to say,
-these two models perfom better than our baselines, and among them
+these two models perform better than our baselines, and among them
 $ARIMA(0,1,5)$ performs better by $~0.4$. Since we are talking in millions
 here, $~0.4$ will have a lot of significance. Therefore the model we should
 opt to use is $ARIMA(0,1,5)$.
 
 We now can start a rolling forecasting, meaning every months it passes we can
-run again the model with the new datapoint,  creating more accurate results
+run again the model with the new data point,  creating more accurate results
 for next periods of time.
 
 \section{Conclusion}\label{sec:conclusion}
