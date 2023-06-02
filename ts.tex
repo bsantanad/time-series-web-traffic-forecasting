@@ -32,7 +32,7 @@
     We first dive into a background study on how $ARMA(p,q)$ works and the core
     ideas behind it. We present how to choose the correct order of $p$ and $q$
     using \emph{Akaike Information Criterion} (AIC). Then we find the right
-    model for our specific case. 
+    model for our specific case.
 
     We then showcase how $ARIMA(0,1,5)$ outperforms other naive models as well
     as $ARIMA(3,1,1)$. Implying that the traffic of chess.com can be best
@@ -807,7 +807,7 @@ used produced. The models we are going to compare are the following
 
     \item \emph{Window Average}, this is a naive model, we took the last six
         months, calculate the average and forecast that value for the next 3
-        months 
+        months
 
     \item \emph{$ARIMA(3,1,1)$}, this is an $ARIMA(p,d,q)$  model with order
         $p=3$ and $q=1$, while the difference order $d=1$
@@ -853,7 +853,7 @@ values on average. Please refer to Figure~\ref{fig:mape}.
   \centering
   \includesvg[width=1\columnwidth]{images/mape.svg}
     \caption{Mean Average Percentage Error (MAPE) of the 4 models we used to
-    make  a forecast} 
+    make  a forecast}
     \label{fig:mape}
 \end{figure}
 
@@ -888,7 +888,7 @@ enabling accurate predictions.
 
 Future research could explore using \emph{Recurrent Neural Networks} and other
 deep learning models to explore more advances forecasting techniques to
-imporce accuracy of web traffic forecasting. 
+imporce accuracy of web traffic forecasting.
 
 In summary, $ARIMA(0,1,5)$ demonstrated its potential as an effective tool for
 web traffic forecasting. Its ability to capture and predict patterns in web
