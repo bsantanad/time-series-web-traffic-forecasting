@@ -11,10 +11,12 @@
 \usepackage{hyperref}
 \usepackage{svg}
 
+
 % Title and author information
-\title{Time Series for Web Traffic Forecasting }
+\title{Time Series for Web Traffic Forecasting}
 \author{Benjamin Santana Velazquez}
 \date{June 2023}
+
 
 \begin{document}
 
@@ -414,7 +416,7 @@ probability of obvserving a data point. In the likelihood function, given a
 set of data, it tells us  how likely it is that different model parametrs
 generate the data.
 
-Let us see an example from the book Time Series Forecasting by Marco Peixeiroi
+Let us see an example from the book Time Series Forecasting by Marco Peixeiro
 \cite{timeseries}, that helped me understand the concept better:
 
 \begin{itemize}
@@ -582,11 +584,11 @@ Table~\ref{tab:traffic}
     \hline
     Index & Date & Traffic \\
     \hline
-    0 & 2012-01 & 526370 \\
-    1 & 2012-02 & 489447 \\
-    2 & 2012-03 & 482083 \\
-    3 & 2012-04 & 497484 \\
-    4 & 2012-05 & 531260 \\
+    0 & 2012-01 & 526,370 \\
+    1 & 2012-02 & 489,447 \\
+    2 & 2012-03 & 482,083 \\
+    3 & 2012-04 & 497,484 \\
+    4 & 2012-05 & 531,260 \\
     \hline
   \end{tabular}
 \end{table}
@@ -620,7 +622,7 @@ once we have done this two changes.
     \label{fig:obs-2}
 \end{figure}
 
-\subsection{Decompose Time series}
+\subsection{Decompose Time series}\label{sub:decompose-time-series}
 
 Now that we have our time series ready let us analyse the decomposition of the
 time series. \footnote{If you do not know what decomposing the time series
@@ -754,11 +756,132 @@ correlated.
 
 \subsection{Forecast}
 
+\begin{table*}[htbp]
+  \centering
+  \caption{Traffic Data}
+  \label{tab:traffic}
+  \begin{tabular}{|c|c|c|c|c|c|c|}
+    \hline
+      Index & Date & Traffic & Last Known Value & Window Average & $ARIMA(3,1,1)
+$ & $ARIMA(0,1,5)$ \\
+    \hline
+        73 & 2023-01 & 16,583,965 & 14,898,733 & 15,274,165 & 16,412,187 & 16,381,638 \\
+        74 & 2023-02 & 16,902,916 & 15,730,408 & 15,274,165 & 16,707,268 & 16,770,711 \\
+        75 & 2023-03 & 17,094,718 & 16,110,785 & 15,274,165 & 16,804,804 & 16,971,533 \\
+    \hline
+  \end{tabular}
+\end{table*}
+
+We have defined the models we will use to make the foreacasts $ARIMA(3,1,1)$
+and $ARIMA(0,1,5)$. Now we will insert the forecasts in a table side by side
+with the testing set (the actual values). Please refer to
+Table~\ref{tab:traffic} to see this results. It is hard to visualize which
+model did better by just looking at the values on the table, in the next
+section we will use plots, as well as the $MAPE$ to see which model perfomed
+better.
+
+
 \section{Analysis of Results}\label{sec:analysis}
-% Present your experimental results here
+
+In this section we will compare the forecasts the different methods we
+used produced. The models we are going to compare are the followig
+
+\begin{itemize}
+
+    \item \emph{Last Known Value}, this is a naive model, we simply took last
+        three months and forecast the same values for the next three months
+
+    \item \emph{Window Average}, this is a naive model, we took the last six
+        months, calculate the average and forecast that value for the next 3
+        months 
+
+    \item \emph{$ARIMA(3,1,1)$}, this is an $ARIMA(p,d,q)$  model with order
+        $p=3$ and $q=1$, while the difference order $d=1$
+
+    \item \emph{$ARIMA(0,1,5)$}, this is an $ARIMA(p,d,q)$  model with order
+        $p=0$ and $q=5$, while the difference order $d=1$. $p=0$ means that it
+        wont use the autoregression part of $ARIMA(p,d,q)$ instead it will use
+        just a moving average model of order five.
+
+\end{itemize}
+
+Table~\ref{tab:traffic} shows the actual traffic value, compared with these 4
+models, but to get a better grasp of how they perfom we can direct ourselves to
+Figure~\ref{fig:forecast-large}. Figure~\ref{fig:forecast-zoom} represents the
+same information but from a closer point of view.
+
+\begin{figure}[htbp]
+  \centering
+  \includesvg[width=1\columnwidth]{images/forecast.svg}
+    \caption{chess.com traffic forecast for the first three months of 2023.
+    Forecast window is grayed out. Whilst the lines represent the forecast. A
+    close up of this same figure is shown in Figure~\ref{fig:forecast-zoom}}
+    \label{fig:forecast-large}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includesvg[width=1\columnwidth]{images/forecast-close.svg}
+    \caption{chess.com traffic forecast for the first three months of 2023.
+    Forecast window is grayed out. Whilst the lines represent the forecast.}
+    \label{fig:forecast-zoom}
+\end{figure}
+
+It seems like the worst perfoming model is \emph{Window Average}, this is not
+a big surprise since it is a static naive model. It will forecast the same
+every month and wont take into account trends. We also see that $ARIMA(3,1,1)$
+and $ARIMA(0,1,5)$ seem to perfom pretty similar. Nevertheless before jumping
+into conclusions let us calculate the $MAPE$ (mean absolute percentage error)
+of each model. It will basically tell us how off we were against the acutal
+values on average. Please refer to Figure~\ref{fig:mape}.
+
+\begin{figure}[htbp]
+  \centering
+  \includesvg[width=1\columnwidth]{images/mape.svg}
+    \caption{Mean Average Percentage Error (MAPE) of the 4 models we used to
+    make  a forecast} 
+    \label{fig:mape}
+\end{figure}
+
+We can now get a better analysis of the results. The worst performing model is
+\emph{Window Average}, followed by the \emph{Last Known Value} which on
+average was off by $7.62\%$. This means that at any point we forecast we might
+be, $7.62\%$ above or below the actual value, making this a bad model relative
+to the next two.
+
+We then can take a look at $ARIMA(3,1,1)$ and $ARIMA(0,1,5)$, needless to say,
+these two models perfom better than our baselines, and among them
+$ARIMA(0,1,5)$ performs better by $~0.4$. Since we are talking in millions
+here, $~0.4$ will have a lot of significance. Therefore the model we should
+opt to use is $ARIMA(0,1,5)$.
+
+We now can start a rolling forecasting, meaning every months it passes we can
+run again the model with the new datapoint,  creating more accurate results
+for next periods of time.
 
 \section{Conclusion}\label{sec:conclusion}
-% Summarize your findings and conclude the paper
+
+In conclusion, this study aimed to forecast web traffic using
+$SARIMA(p,d,q)(P,D,Q)_m$. After seeing that the time series did not had
+seasonality in Section~\ref{sub:decompose-time-series}, we opted to use
+$ARIMA(p,d,q)$.
+
+The findings indicate that the $ARIMA(0,5,1)$ model performed well in
+forecasting web traffic, as evidenced by the low Mean Absolute Percentage
+Error (MAPE) compared against the baseline models and $ARIMA(3,1,1)$  The
+model effectively captured the underlying patterns and trends in the web data,
+enabling accurate predictions.
+
+Future research could explore using \emph{Recurrent Neural Networks} and other
+deep learning models to explore more advances forecasting techniques to
+imporce accuracy of web traffic forecasting. 
+
+In summary, $ARIMA(0,1,5)$ demonstrated its potential as an effective tool for
+web traffic forecasting. Its ability to capture and predict patterns in web
+data makes it a valuable resource chess.com for both resource allocation and
+performance optimization strategies for the website. However, further research
+and refinement are warranted to enhance its performance and account for
+complex factors influencing web traffic dynamics.
 
 \section*{Acknowledgment}
 % Acknowledgments (if any) go here
