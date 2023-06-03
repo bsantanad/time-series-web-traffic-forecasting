@@ -26,7 +26,7 @@
     In recent years, the growth of online platforms has driven the need for
     accurate and reliable web traffic forecasting techniques. This paper
     compares different naive models against the application of the
-    Auto-Regressive Integrated Moving Average (ARIMA) model to forecast web
+    Auto-Regressive Integrated Moving Average ($ARIMA$) model to forecast web
     traffic for chess.com.
 
     We first dive into a background study on how $ARMA(p,q)$ works and the core
@@ -36,13 +36,13 @@
 
     We then showcase how $ARIMA(0,1,5)$ outperforms other naive models as well
     as $ARIMA(3,1,1)$. Implying that the traffic of chess.com can be best
-    modeled with a $MA(q)$ process .
+    modeled by a $MA(q)$ process.
 
-    Overall, this paper showcases the successful application of the
-    $ARIMA(p,d,q)$ model to forecast web traffic for chess.com. It contributes
-    to the existing literature on web traffic forecasting and demonstrates the
-    potential of time series analysis techniques in capturing the dynamic
-    nature of online user behavior.
+    Overall, this paper showcases the application of the $ARIMA(p,d,q)$ model
+    to forecast web traffic for chess.com. It contributes to the existing
+    literature on web traffic forecasting and demonstrates the potential of
+    time series analysis techniques in capturing the dynamic nature of online
+    user behavior.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -61,7 +61,7 @@ business patterns. Consequently, time series analysis has permeated various
 fields, from the traditional ones like finance and economy --- where someone
 can forecast sales or the EPS of a public company --- to lesser explored
 territories like marketing, where time series analysis allows to track business
-metrics, such as user engagement and make forecasts based on that. In this
+metrics, such as user engagement and create forecasts based on that. In this
 piece of work we will delve into the realm of web traffic.
 
 It is common for web applications to keep a register of their traffic at all
@@ -78,7 +78,7 @@ Why would we want to do this? \emph{Resource Allocation} and \emph{Performance
 Optimization}. By forecasting website traffic, we can estimate the expected
 number of visitors and allocate appropriate resources to handle the load. This
 can either save costs in the infrastructure of the website like server
-capacity, bandwidth --- when a low number of visitors is present --- or it can
+capacity and bandwidth --- when a low number of visitors is present --- or it can
 save the website's users from seeing an overload error when the server's
 capacity is at peak.
 
@@ -89,31 +89,29 @@ servers at max capacity, not allowing users to play games and losing revenue in
 the process.
 
 This begs the question: Can we accurately forecast the traffic of the website
-chess.com to enable proactive resource allocation and ensure sufficient
-resources are allocated in advance? I will do my best to try and answer this in
-this short paper
+chess.com to make proactive resource allocation? This  would ensure that, at
+any given point, we have enough resources asigned to handle the traffic load. I
+will do my best to try and answer this in this short paper.
 
 We will use one of the most popular traditional statistical methods used in
 time series forecasting, $SARIMA(p,d,q)(P,D,Q)_m$. We will find out if this
-model is powerful enough to create meaningful and accurate forecasts or if
-opting for naive methods to get better results.  we should opt into the world
-of neural networks \footnote{We could also opt into the realm of neural network
-for time series, but this is not covered in the paper, if you are interested
-on that please refer to \cite{nn}}
+model is powerful enough to create meaningful and accurate forecasts or if we
+should opt for naive methods to get better results. \footnote{We could also opt
+to get into the realm of neural network for time series, but this is not
+covered in the paper, if you are interested please refer to \cite{nn}}
 
 Unfortunately, the traffic of a website is not public information. Meaning we
 cannot get the actual time series from chess.com itself. We need to rely on
 other sources to get the actual information. After reviewing the possible
-options we deiced to go with  \href{http://semrush.com}{semrush}, a "all-in-one
+options we deiced to go with  \href{http://semrush.com}{Semrush}, a "all-in-one
 tool suite for improving online visibility and discovering marketing insights."
-\cite{semrush}. One of semrush tools provides web traffic for different
+\cite{semrush}. One of Semrush tools provides web traffic for different
 websites. Of course we need to take into account that we are taking the data
-(the time series itself) from a third party, so there is a some level of
+(the time series itself) from a third party, so there is some level of
 uncertainty associated with its accuracy. Semrush provided us with the historic
 information month by month of traffic in chess.com from January 2012 to March
-2023. How it looks will be discussed later in the paper. What I wanted to point
-here is that we will try to forecast 3 months into the future given these data
-points
+2023. How it looks will be discussed later in the paper. We will try to
+forecast 3 months into the future given these data points.
 
 In summary, our objective is to assess the effectiveness of the
 $SARIMA(p,d,q)(P,D,Q)_m$ model in forecasting three months of web traffic on
@@ -121,7 +119,7 @@ chess.com. We will be conducting an analysis by comparing its performance
 against naive forecasting methods. Such forecasts play a crucial role in
 facilitating both resource allocation and performance optimization strategies
 for the website. The conclusion an results are shown in Section
-\ref{sec:analysis} and Section \ref{sec:conclusion}
+\ref{sec:analysis} and Section \ref{sec:conclusion}.
 
 
 \section{Background Study}\label{sec:back}
@@ -132,7 +130,7 @@ serve as a base for $SARIMA(p,d,q)(P,D,Q)_m$. Understanding these two parts
 of the model --- I believe --- is the keystone to understanding the model as a
 whole. We are also going to review how $AR(p)$ and $MA(q)$ come together in
 $ARMA(p,q)$ to model complex time series, and how we can find the orders $p$
-and $q$. Let us start with a simple question...
+and $q$.
 
 What is a time series? We can define a time series as a set of points ordered
 in time, usually equally spaced in time. \cite{timeseries} We can decompose
@@ -145,16 +143,15 @@ any time series into 3 components:
         of time.
 
     \item \emph{residuals}, what can not be explained by the trend of seasonal
-        components, this is usually white noise. Any model wont be able to
+        components, this is usually white noise. A model wont be able to
         forecast any of this part, since it is completely random
 \end{itemize}
 
-Now that we have defined these concepts of a time series, let us see how they
-look in action. To demonstrate how this looks in a time series we will use
-classical time series presented in \emph{Box, G. E. P., Time Series Analysis,
-Forecasting and Control.} \cite{airline}. The classic Box \& Jenkins airline
-data presents monthly totals of international airline passengers, 1949 to
-1960. Table~\ref{tab:passengerdata}, showcase the first 5 entries of the time
+To demonstrate how this looks in a time series we will use a classical time
+series presented in \emph{Box, G. E. P., Time Series Analysis, Forecasting and
+Control.} \cite{airline}. The classic Box \& Jenkins airline data presents
+monthly totals of international airline passengers, 1949 to 1960.
+Table~\ref{tab:passengerdata}, showcase the first five entries of the time
 series.
 
 \begin{table}[htbp]
@@ -187,7 +184,7 @@ what we call observed data.
 \end{figure}
 
 Let us decompose it into the three components, to see how it would each would
-look in a graph. Figure~\ref{fig:decompose} showcases how this looks.
+look in a plot. Figure~\ref{fig:decompose} showcases how this looks.
 
 \begin{figure}[htbp]
   \centering
@@ -198,45 +195,52 @@ look in a graph. Figure~\ref{fig:decompose} showcases how this looks.
   \label{fig:decompose}
 \end{figure}
 
-We can see that now we have 4 plots displaying. The first one is the observed
-data, just like we saw in Figure~\ref{fig:airpassenger}. Then we can see one
-plot for each of the concepts explained above. We see the trend  as a
-slow-change moving upwards. We can see the seasonal component repeating each
-year, and finally the white noise or residuals of the time series.
+We can see that we have decomposed the time series into 4 plots. The first one
+is the observed data, just like we saw in Figure~\ref{fig:airpassenger}. Then
+we can see one plot for each of the concepts explained above. We see the trend
+as a slow-change moving upwards. We can see the seasonal component repeating
+each year, and finally the white noise or residuals of the time series.
 
-Hopefully after seeing this example this concepts have clearer to the reader.
+Hopefully after seeing this example this concepts have become clearer to the
+reader.
 
 By now you might be wondering what are the differences between time series
 forecasting and a other regression tasks. It basically comes down to two
-things: \emph{time series has an order}, --- a time series is indexed by
-time, order must be kept, in regression tasks when  you want to predict
-revenue based on ad spend, it does not matter when certain amount was spent
-on ads. --- and \emph{time series do not have features}, it is common to only
-have two columns, time and the data itself, it usually does not have
-categories.
+things.
 
-Before jumping into $MA(q)$ and $AR(p)$ I want to explain some concepts, the
-first one is \emph{baseline models}. A baseline model is a trivial solution
-to our problem, it uses heuristics more than deep statistics knowledge or
-anything else. It might be clearer if we use an example. Say we have a time
-series on the sales of XYZ, after getting the data points we calculate the
-mean and say "I forecast next month our sales will be the mean of all the time
-series". We got this forecast using a simple statistics concept like it is the
-mean. It is likely that  we can get a better forecast than this using more
-complex statistics. Why then should we bother making this naive models? They
-allow us to compare our complex model with something. A common example of a
-baseline model is just simply using the last value known. For example, if we
-have five years worth of data points, collected each month, and we want to
-forecast next three months, we can simply copy and paste the values from last
-three months and be good to go. In some time series, our statistical model
-maybe performs worse than this naive methods, then we would be wasting
-resources every forecast running our complex statistical models. Because we
-could just copy and past the last values, or use the mean, or some other
-baseline model. In Section~\ref {sec:analysis} we will compare our
-$SARIMA(p,d,q)(P,D,Q)_m$ model with a baseline model and conclude if it is
-worth it to use it against some simpler methods.
+\begin{itemize}
+    \item \emph{Time series have an order}, a time series is indexed by time,
+        order must be kept. Say for example, in a regression tasks when  you
+        want to predict revenue based on ad spend, it does not matter when
+        certain amount was spent.
 
-One last thing on the baseline methods. How do we compare the models against
+    \item \emph{Time series do not have features}, it is common to only have
+        two columns, time and the data itself. It usually does not have
+        categories.
+\end{itemize}
+
+I will explain more concepts before diving into $MA(q)$ and $AR(p)$ starting
+with \emph{baseline models}. A baseline model is a trivial solution to our
+problem, it uses heuristics more than deep statistics knowledge. It might be
+clearer if we use an example. Say we have a time series on the sales of XYZ,
+after getting the data points we calculate the mean and say "My forecast for
+next month is that our sales will be the mean of all the time series". We got
+this forecast using a simple statistics, the mean. It is likely that  we can
+get a better forecast than this using more complex statistics. Why then should
+we bother making this naive models? They allow us to compare our complex model
+with something. A common example of a baseline model is just simply using the
+last known value. For example, if we have five years worth of data points,
+collected each month, and we want to forecast next three months, we can simply
+copy and paste the values from last three months and be good to go. In some
+time series, our statistical model may perform worse than this naive methods,
+then we would be wasting resources every time we make a forecast running our
+complex statistical models. Because we could just copy and paste the last
+values, or use the mean, or some other baseline model and get beeter results.
+In Section~\ref {sec:analysis} we will compare our $SARIMA(p,d,q)(P,D,Q)_m$
+model with some baseline models and conclude if it is worth using it against
+simpler models.
+
+One last thing on the baseline methods. How can we compare the models against
 each other? We will calculate an error metric in order to evaluate the
 performance of our forecasts. We will use $MAPE$ (mean absolute percentage
 error), which will measure prediction accuracy, independent of the scale of
@@ -266,8 +270,8 @@ Basically the null hypothesis states that a unit root is present, meaning that
 our time series is not stationary. We can reject the null hypothesis if after
 doing the test, we get a $p$ value less than $0.05$.
 
-I think we have a good enough grasp on time series to go into the moving
-average process ($MA(q)$) and the autoregressive process ($AR(p)$)
+I think we have a good enough grasp on time series concepts to move into the
+moving average process ($MA(q)$) and the autoregressive process ($AR(p)$).
 
 \subsection{Moving Average Process}\label{sub:ma}
 
@@ -286,7 +290,7 @@ The moving average of order $q$ is calculated by equation~\ref{eq:ma}.
 Where, $\mu$ is the mean, $\epsilon_t$ is the error term, $\epsilon_{t-k}$ is
 the past error term and $\theta$ is the magnitude of impact of the past errors.
 
-Needless to say, the large $q$ is, the more past error terms affect the
+Needless to say, the larger $q$ is, the more past error terms affect the
 present value. This means that we need to choose this hyperparemeter carefully
 in order to train the data correctly. In simple time series we can use simply
 use the AutoCorrelation Function (ACF) plot in  order to get $q$. An example
@@ -304,17 +308,17 @@ $MA(2)$ to model this stationary time series process.
 
 \subsection{Autoregressive Process}\label{sub:ar}
 
-An autoregressive process ($AR(p)$)establishes that the output variable
+An autoregressive process ($AR(p)$) establishes that the output variable
 depends linearly on its own previous states. An autoregressive process is a
 regression of a variable against itself. In a time series, this means that the
 present value is linearly dependent on its past values. \cite{timeseries}
 
-It is defined by $AR(p)$ where $p$ is the order it defines the number of past
+It is defined by $AR(p)$ where $p$ defines the number of past
 values that affect the present value. Equation~\ref{eq:ar} show an
 autoregressive process up to lag $p$.
 
 \begin{equation}
-    y_t = C + \phi_1 y_{t-1} + \phi_2 y_{t-2}
+    y_t = C + \phi_1 y_{t-1} + \phi_2 y_{t-2} +
             ... +  \phi_p y_{t-p} + \epsilon_t
     \label{eq:ar}
 \end{equation}
@@ -326,7 +330,7 @@ the error term and $\epsilon_{t-k}$ the past error term.
 Like in subsection~\ref{sub:ma}, we also have an important hyperparemeter
 here: $p$. Unfortunately we can not get it from the ACF plot, because if we
 did an the plot on autoregressive stationary process it would exhibit a
-pattern of exponential decay\cite{timeseries} like see in
+pattern of exponential decay\cite{timeseries} like seen in
 Figure~\ref{fig:acf-ar}.
 
 \begin{figure}[htbp]
@@ -337,7 +341,7 @@ Figure~\ref{fig:acf-ar}.
 \end{figure}
 
 We then must turn our attention to the Partial AutoCorrelation Function (PACF)
-plot. to get the order of the autoregression. This measures the correlation
+plot to get the order of the autoregression. This measures the correlation
 between lagged values in a time series when we remove the influence of
 correlated lagged values in between. Figure~\ref{fig:pacf} showcase how this
 would look.
@@ -345,7 +349,7 @@ would look.
 \begin{figure}[htbp]
   \centering
   \includesvg[width=1\columnwidth]{images/pacf-ar.svg}
-    \caption{Example PACF plot, We can see that we have no significant
+    \caption{Example PACF plot, we can see that we have no significant
         coefficients after lag 3, meaning $AR(p)$ where $p=3$, we have an
         autoregressive process of order 3}
     \label{fig:pacf}
@@ -359,12 +363,12 @@ autoregressive process of order 3.
 
 We have seen $MA(q)$ and $AR(p)$, but the curious reader (or one with a
 background on time series analysis), will see that something is missing.  What
-happens when the ACF plot shows a slowly decaying pattern or a sinusoidal
-pattern, and, when plotting PACF you see too, a slowly decaying pattern or a
-sinusoidal pattern. Meaning we cannot infer an order from the ACF plot or from
-the PACF plot. Then, we may be in the presence of a complex process, where we
-will need to combine $AR(p)$ and $MA(q)$ to model it, this is where the
-$ARMA(p, q)$ model comes into play.
+happens when the ACF plot shows a slowly decaying pattern (like seen in
+Figure~\ref{fig:acf-ar}) or a sinusoidal pattern, and, when plotting PACF you
+see too, a slowly decaying pattern or a sinusoidal pattern. Meaning we cannot
+infer an order from the ACF plot or from the PACF plot. Then, we may be in the
+presence of a complex process, where we will need to combine $AR(p)$ and
+$MA(q)$ to model it, this is where the $ARMA(p, q)$ model comes into play.
 
 The $ARMA(p, q)$  is simply a combination of the models we saw in
 subsection~\ref{sub:ma} and subsection~\ref{sub:ar}. If we see how we can
@@ -382,8 +386,8 @@ together. See equation~\ref{eq:arma} where:
 \end{equation}
 
 \begin{itemize}
-    \item $p$ determines the number of past \emph{values} that affect the present
-        value.
+    \item $p$ determines the number of past \emph{values} that affect the
+        present value.
     \item $q$ determines the number of past \emph{errors} that affect the
         present value.
 \end{itemize}
@@ -412,26 +416,28 @@ Equation~\ref{eq:aic} shows how to calculate $AIC$.
     \label{eq:aic}
 \end{equation}
 
-Where, $k$ is the number of estimated parameters, $\hat{L}$ maximum value of
-the like-hood function model.
+Where, $k$ is the number of estimated parameters and $\hat{L}$ is the maximum
+value of the like-hood function model.
 
 Using $AIC$ to select our model, allows us to keep a balance between the
-complexity of the model and its goodness of fitting the data. This is because
+complexity of the model and its goodness on fitting the data. This is because
 $k$ is directly affected by the order of $p$ and $q$ in $ARMA(p,q)$. Let us
 see an example; say $p = 2$ and $q=2$ then $k = p + q = 4$, since we are
 subtracting the likelihood function model to times two this number, the
 higher the order gets, the $AIC$ increases, penalizing more complex models.
 
 $\hat{L}$ (the likelihood function) measures the goodness of fit a model has.
-Comparing it with the distribution function will make it easier to understand.
-It can be seen as the opposite of the distribution function. In the
-distribution function, given a model with fixed parameters, it measures the
-probability of observing a data point. In the likelihood function, given a
-set of data, it tells us  how likely it is that different model parameters
-generate the data.
+We can compare it with the distribution function to make it easier to
+understand becuase it can be seen as the opposite of the distribution function.
+The distribution function, given a model with fixed parameters, measures the
+probability of observing a data point. The likelihood function, given a set of
+data, tells us  how likely it is that different model parameters generate the
+data.
 
 Let us see an example from the book Time Series Forecasting by Marco Peixeiro
 \cite{timeseries}, that helped me understand the concept better:
+
+Say we have a six-sided die.
 
 \begin{itemize}
     \item
@@ -443,22 +449,22 @@ Let us see an example from the book Time Series Forecasting by Marco Peixeiro
         likely is that the die has six sides.
 \end{itemize}
 
-So the question in our context is, \emph{How likely is that my observed data
-is coming from an $ARMA(1,1)$} If a model fits the data really well, the
-maximum value of likelihood will be high \cite{timeseries}. Since $AIC$
-function subtracts the $ln(\hat{L})$ from $2k$, it balance between
-under-fitting and over-fitting.
+So the question in our context is, \emph{How likely is that my observed data is
+coming from an $ARMA(n,m)$ model?}, where $n,m$ represent two natural numbers.
+If a model fits the data really well, the maximum value of likelihood will be
+high \cite{timeseries}. Since $AIC$ function subtracts the $ln(\hat{L})$ from
+$2k$, it balance between under-fitting and over-fitting.
 
-Taking into account that $AIC$ quantifies the quality of a model in relation
-to other models only.  so it is a relative measure of quality.  What we end
-up doing in practice is iterating through some combinations of $p$ and $q$,
-to calculate the $AIC$ values and selecting the one with the lowest score.
-Finding this way the order of $ARMA(p,q)$. We can extend this process to
-even more complex models like $SARIMA(p,d,q)(P,D,Q)_m$, $AIC$ will help us
-find this hyperparameters (except from $d$ and $D$, but more on that later).
+We need to take into account that $AIC$ quantifies the quality of a model in
+relation to other models only. Meaning it is a relative measure of quality.
+What we end up doing in practice is iterating through some combinations of $p$
+and $q$, to calculate the $AIC$ values and selecting the one with the lowest
+score, finding this way the order of $ARMA(p,q)$. We can extend this process
+to even more complex models like $SARIMA(p,d,q)(P,D,Q)_m$, $AIC$ will help us
+find this hyperparameters.
 
-Coming back to our initial problem (finding the order of $ARMA(p,q)$), after
-finding a combination of $p$ and $q$, we still need to check one more thing.
+Coming back to our initial problem, after finding a combination of $p$ and $q$,
+we still need to check one more thing.
 
 \subsubsection{Calculating Residuals}\label{sub:resid}
 
@@ -524,8 +530,8 @@ on every lag $p > 0.05$ we can start using the model for forecasting.
 
 In this section we saw basic concepts of time series,  like decomposition and
 stationarity. We learned about the $MA(q)$ and $AR(p)$ models, and how they
-work together to form $ARMA(p,q)$ and model complex time series. We say how to
-use $AIC$ to find the order of $p$ and $q$. We also saw how to analysis the
+work together to form $ARMA(p,q)$ and model complex time series. We saw how to
+use $AIC$ to find the order of $p$ and $q$. We also saw how to analyze the
 residuals to diagnose the model and see if we can use it in forecasting. It
 goes without saying that this of course does not cover every single concept
 related to $SARIMA(p,d,q)(P,D,Q)_m$. The idea of this section is to give an
@@ -535,13 +541,11 @@ the reader to refer to the references we used throughout this section for a
 complete understanding of $SARIMA(p,d,q)(P,D,Q)_m$.
 
 \section{Experimental framework}\label{sec:exp}
-% Objective or Research Question
-% Experimental Design
-% Data Collection
-% Variables
-% Procedure
 
-In this section we will FIXME
+This section serves as the foundation for evaluating the performance of the
+$SARIMA(p,d,q)(P,D,Q)_m$ model with chess.com web traffic. The section outlines
+the model configuration, meaning how we chose the hyperparameters and 
+how good the proposed approach works.
 
 As stated in Section~\ref{sec:intro}, our objective is to assess the effectiveness of
 the $SARIMA(p,d,q)(P,D,Q)_m$ model in forecasting three months of web traffic
@@ -560,7 +564,7 @@ Section~\ref{sec:back}.
 
 In Section~\ref{sec:intro} we stated the traffic of a website is not public
 information. We got the information from a third-party
-\href{http://semrush.com}{semrush}. Semrush tools provides web traffic for
+\href{http://semrush.com}{Semrush}. Semrush tools provides web traffic for
 different websites. We need to take into account that we are taking the data
 from a third party, so there is a some level of uncertainty associated with
 its accuracy. Semrush provided us with the historic information month by month
@@ -640,13 +644,13 @@ once we have done this two changes.
 
 Now that we have our time series ready let us analyze the decomposition of the
 time series. \footnote{If you do not know what decomposing the time series
-means please refer to Section~\ref{sec:back} or Figure~\ref{fig:decompose}}.
+means please refer to Section~\ref{sec:back} or Figure~\ref{fig:decompose}}
 Please refer to Figure~\ref{fig:decom-chess}
 
 \begin{figure}[htbp]
   \centering
   \includesvg[width=1\columnwidth]{images/decom.svg}
-    \caption{Decomposed chess.com traffic from December 2016 to March 2023}
+    \caption{Decomposed chess.com traffic from December 2016 to December 2023}
     \label{fig:decom-chess}
 \end{figure}
 
@@ -677,7 +681,7 @@ stationary. After differencing it once we get a new ADF statistic of
 $-3.18885$ and $p = 0.02063$ this means $p < 0.05$, therefore we can reject
 the null hypothesis and say that the series is stationary after calculate the
 first discrete difference. This means we have our first hyperparemeter for
-$ARIMA(p,d,q)$, $d = 1$ \footnote{$d$ is directly connected to the number of
+$ARIMA(p,d,q)$, $d = 1$ \footnote{$d$ is directly related to the number of
 times we have to apply a differentiation to make the series stationary, if
 after applying the first differentiation $p > 0.05$ we would have to
 differentiate again and $d$ would become 2}.
@@ -692,8 +696,9 @@ Cartesian product of $A\times A$ where $A$ is a set defined as $A =
 \{0,1,2,3,4,5,6,7,8,9\}$. This means we will try $ARIMA(1,1,1)$, then
 $ARIMA(1,1,2)$ up to $ARIMA(1,1,9)$, to then go $ARIMA(2,1,1)$ and try all
 combinations. We will test each model with the $AIC$ go to
-Section~\ref{sub:aic} for more information on how it works. Using this, we get
-table, of which the first 5 entries are shown in Table~\ref{tab:aic}.
+Section~\ref{sub:aic} for more information on how it works. After doing this,
+we record the entries into a table, of which the first five entries are shown in
+Table~\ref{tab:aic}.
 
 \begin{table}[htbp]
   \centering
@@ -760,8 +765,8 @@ Please refer to Figure~\ref{fig:diag-05} while reading this subsection.
 \end{figure}
 
 The analysis for Figure~\ref{fig:diag-31} is pretty much the same as the one
-presented in Subsection~\ref{sub:31} the only difference is on the Q-Q plot ,
-and it is not significant so I wont spend time discussing it.
+presented in Subsection~\ref{sub:31} the only difference is on the Q-Q plot,
+but it is not significant so I wont spend time discussing it.
 
 Similar to $ARIMA(3,1,1)$ when doing the Ljung-Box test, discussed in
 Section~\ref{sub:resid}, we saw that at any given lag $p > 0.05$ meaning we
@@ -797,8 +802,8 @@ better.
 
 \section{Analysis of Results}\label{sec:analysis}
 
-In this section we will compare the forecasts the different methods we
-used produced. The models we are going to compare are the following
+In this section we will compare the forecasts the different methods
+produced. The models we are going to compare are the following
 
 \begin{itemize}
 
